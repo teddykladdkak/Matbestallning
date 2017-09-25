@@ -1,0 +1,36 @@
+{
+ "data": [
+  {
+   "rating": "3",
+   "kommentar": "Det funka.."
+  },
+  {
+   "rating": "1",
+   "kommentar": "Tilltalade mig inte alls! Bättre jobb nästa gång."
+  },
+  {
+   "rating": "5",
+   "kommentar": "Ni är bäst!"
+  },
+  {
+   "rating": "4",
+   "kommentar": "Det lilla jag klarade av att äta var gott, tyvärr är jag för illamående."
+  },
+  {
+   "rating": "1",
+   "kommentar": "Ni använder på tok för mycket salt!"
+  },
+  {
+   "rating": "5",
+   "kommentar": "Samma som att äta på restaurang."
+  },
+  {
+   "rating": "5",
+   "kommentar": "Maten var bättre än på bilderna."
+  },
+  {
+   "rating": "3",
+   "kommentar": "Tror vi på detta?!?"
+  }
+ ]
+}

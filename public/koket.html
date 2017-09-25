@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matbeställning - Köket</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="yes" name="mobile-web-app-capable" />
+	<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<style type="text/css" id="styler">
+		#torta { 
+			position: relative; 
+			height: 300px; width: 300px; 
+			overflow: hidden; 
+			border-radius: 100%; 
+			background-color: aqua; 
+			background-image: linear-gradient(36deg, red, red 49.9%, transparent 50.1%, transparent 100%); 
+		} 
+		#torta::before { 
+			content: ''; 
+			position: absolute; 
+			height: 100%; width: 100%; 
+			top: 0; left: 0; 
+			border-radius: inherit; 
+			background-color: red; 
+			clip: rect(0, 300px, 150px, 0px); 
+			background-image: linear-gradient(252deg, blue, blue 49.9%, transparent 50.1%, transparent 100%), linear-gradient(180deg, yellow, yellow 49.9%, transparent 50.1%, transparent 100%); 
+		}
+	</style>
+	<script type="text/javascript">
+		var startrating = [0,0,0,0,0];
+		function raknaprocent(numbers){
+			var summa = 0;
+			for (var i = numbers.length - 1; i >= 0; i--) {
+				var summa = summa + parseInt(numbers[i]);
+			};
+			var numbersinpercent = [];
+			for (var i = numbers.length - 1; i >= 0; i--) {
+				numbersinpercent.push((parseInt(numbers[i]) / summa) * 100);
+			};
+			console.log(numbersinpercent);
+			return numbersinpercent;
+		};
+		function addpercentintable(numbers){
+			var separate = raknaprocent(numbers).reverse();
+			var allelements = document.getElementsByClassName('smileypercent');
+			for (var i = allelements.length - 1; i >= 0; i--) {
+				while (allelements[i].hasChildNodes()) {allelements[i].removeChild(allelements[i].firstChild);};
+				var nytext = document.createTextNode(Math.round(parseInt(separate[i])) + '%');
+				allelements[i].appendChild(nytext);
+			};
+		};
+		function addstapel(numbers){
+			var farger = ['red', 'orange', 'yellow', 'lightgreen', 'green'];
+			var separate = raknaprocent(numbers).reverse();
+			var staplar = document.getElementById('stapel').getElementsByTagName('td');
+			for (var i = staplar.length - 1; i >= 0; i--) {
+				var num = 100 - separate[i];
+				staplar[i].setAttribute('style', 'background: -moz-linear-gradient(top, #ffffff 0%, #ffffff ' + num + '%, ' + farger[i] + ' ' + (num + 1) + '%, ' + farger[i] + ' 100%);background: -webkit-linear-gradient(top, #ffffff 0%,#ffffff ' + num + '%,' + farger[i] + ' ' + (num + 1) + '%,' + farger[i] + ' 100%);background: linear-gradient(to bottom, #ffffff 0%,#ffffff ' + num + '%,' + farger[i] + ' ' + (num + 1) + '%,' + farger[i] + ' 100%);')
+			};
+			/*
+			background: -moz-linear-gradient(top, #ffffff 0%, #ffffff 50%, #1dff00 51%, #1dff00 100%);
+			background: -webkit-linear-gradient(top, #ffffff 0%,#ffffff 50%,#1dff00 51%,#1dff00 100%);
+			background: linear-gradient(to bottom, #ffffff 0%,#ffffff 50%,#1dff00 51%,#1dff00 100%);*/
+		};
+		function readdata(data){
+			removecomments();
+			for (var i = data.length - 1; i >= 0; i--) {
+				startrating[parseInt(data[i].rating) - 1] = startrating[parseInt(data[i].rating) - 1] + 1;
+				if(data[i].kommentar == ''){}else{
+					addcomment(data[i].rating, data[i].kommentar);
+				};
+			};
+			addpercentintable(startrating);
+			addstapel(startrating);
+		};
+		function adddata(rating, kommentar){
+			startrating[parseInt(rating) - 1] = startrating[parseInt(rating) - 1] + 1;
+			addpercentintable(startrating);
+			addstapel(startrating);
+		};
+		function removecomments(){
+			window['startrating'] = [0,0,0,0,0];
+			var staplar = document.getElementById('stapel').getElementsByTagName('td');
+			for (var i = staplar.length - 1; i >= 0; i--) {
+				staplar[i].removeAttribute('style');
+			};
+			var kommentwrapper = document.getElementById('smileys').getElementsByTagName('tbody')[0];
+			while (kommentwrapper.hasChildNodes()) {kommentwrapper.removeChild(kommentwrapper.firstChild);};
+		};
+		function addcomment(rating, kommentar){
+			console.log(kommentar);
+			if(kommentar == ''){}else{
+				var kommentwrapper = document.getElementById('smileys').getElementsByTagName('tbody')[0];
+					var row = document.createElement('tr');
+						row.setAttribute('data-number', rating);
+						var col = document.createElement('td');
+							col.setAttribute('colspan', '5');
+							var text = document.createTextNode(kommentar);
+							col.appendChild(text);
+						row.appendChild(col);
+					kommentwrapper.appendChild(row);
+			};
+		};
+		function showallkomment(){
+			var kommentwrapper = document.getElementById('smileys').getElementsByTagName('tbody')[0];
+			var alllines = kommentwrapper.getElementsByTagName('tr');
+			for (var i = alllines.length - 1; i >= 0; i--) {
+				alllines[i].removeAttribute('style');
+			};
+		};
+		function showkomment(number){
+			var kommentwrapper = document.getElementById('smileys').getElementsByTagName('tbody')[0];
+			var alllines = kommentwrapper.getElementsByTagName('tr');
+			for (var i = alllines.length - 1; i >= 0; i--) {
+				if(alllines[i].getAttribute('data-number') == number){
+					alllines[i].removeAttribute('style');
+				}else{
+					alllines[i].setAttribute('style', 'display: none;');
+				};
+			};
+		};
+		function datum(eventuelltdatum){
+			if(!eventuelltdatum){
+				var d = new Date();
+			}else{
+				var today = new Date();
+				var d = new Date();
+					d.setDate(today.getDate() + parseInt(eventuelltdatum));
+			};
+			var year = d.getFullYear();
+			var month = d.getMonth() + 1;
+			var day = d.getDate();
+			if(day <= 9){var day = '0' + day;};
+			if(month <= 9){var month = '0' + month;};
+			var datetonumber = year + '-' + month + '-' + day;
+			return datetonumber;
+		};
+		function adddate(){
+			var datewrapper = document.getElementById('date');
+			while (datewrapper.hasChildNodes()) {datewrapper.removeChild(datewrapper.firstChild);};
+				var datetext = document.createTextNode(datum());
+				datewrapper.appendChild(datetext);
+		};
+		function nextdate(element){
+			var number = element.getAttribute('data-numberdate');
+			var alltd = element.parentElement.getElementsByTagName('td');
+			alltd[0].setAttribute('data-numberdate', parseInt(number) - 1);
+			alltd[2].setAttribute('data-numberdate', parseInt(number) + 1);
+			while (alltd[1].hasChildNodes()) {alltd[1].removeChild(alltd[1].firstChild);};
+			alltd[1].appendChild(document.createTextNode(datum(number)));
+			socket.emit('getdatafromdate', datum(number));
+		};
+		function load(){
+			//addpercentintable(numbers);
+			//addstapel(numbers);
+			//readdata();
+			adddate();
+		};
+	</script>
+	<style type="text/css">
+		#wrapper{
+			text-align: center;
+		}
+		#smileys img {
+			width: 50px;
+		}
+		#smileys{
+			text-align: center;
+			width: 100%;
+		}
+		#stapel td{
+			min-height: 100px;
+			height: 100px;
+			background: #ffffff;
+		}
+		table, tr, td{
+			border: solid 1px #000;
+		}
+		#date{
+			font-weight: bold;
+			font-size: 20px;
+		}
+	</style>
+</head>
+<body onload="load()">
+	<div id="wrapper">
+		<table id="smileys">
+			<thead>
+				<tr>
+					<td onclick="nextdate(this);" data-numberdate="-1">&#8678;</td>
+					<td colspan="3" id="date" onclick="showallkomment()">XXXX-XX-XX</td>
+					<td onclick="nextdate(this);" data-numberdate="1">&#8680;</td>
+				</tr>
+				<tr id="stapel"><td></td><td></td><td></td><td></td><td></td></tr>
+				<tr>
+					<td onclick="showkomment('1')"><img src="bilder/smiley/1.png"></td><td onclick="showkomment('2')"><img src="bilder/smiley/2.png"></td><td onclick="showkomment('3')"><img src="bilder/smiley/3.png"></td><td onclick="showkomment('4')"><img src="bilder/smiley/4.png"></td><td onclick="showkomment('5')"><img src="bilder/smiley/5.png"></td>
+				</tr>
+				<tr>
+					<td class="smileypercent"></td><td class="smileypercent"></td><td class="smileypercent"></td><td class="smileypercent"></td><td class="smileypercent"></td>
+				</tr>
+			<thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+	</div>
+	<script src="/socket.io/socket.io.js"></script>
+	<script type="text/javascript">
+		//Tar server id enbart för att koppla till socket
+		var geturl = window.location.href.replace('http://', '').split('/')[0];
+		//Lyssnar om server säger något
+		var socket = io.connect(geturl);
+
+		// A dialog box is displayed when the server sends us a "message"
+		socket.on('message', function(message) {
+			console.log(message);
+		});
+
+		//Server frågar om vi vill ha data
+		socket.on('getdata', function(message) {
+			//Ja vi vill ha data med dagens datum
+			var valtdatum = document.getElementById('date').innerText;
+			socket.emit('getdatafromdate', valtdatum);
+		});
+		socket.on('senddata', function(information) {
+			readdata(information);
+		});
+		//Lägger till infomration till önskad textarea
+		socket.on('skickareg', function(message) {
+			//{datum: message.datum, smiley: message.smiley, komment: message.komment};
+			//addstatistik(message);
+			var currentdate = document.getElementById('date').innerText;
+			if(message.datum == currentdate){
+				adddata(message.smiley, message.komment);
+				addcomment(message.smiley, message.komment);
+			}else{
+				console.log('Datum stämde inte.')
+			};
+		});
+	</script>
+</body>
+</html>

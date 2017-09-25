@@ -1,0 +1,15 @@
+Trevligt att du vill testa denna demo på Matbeställnings app.
+För att testa funktionaliteten behöver du följa seg nedan.
+
+1. Ladda ner och installera "Node.js" (Länk: https://nodejs.org/en/download/)
+2. Klicka på "startserver.bat".
+3. Kommando tolken/terminal visas nu och där ska en länk stå med en massa siffror.
+4. På datorn där nu servern är startad, öppna webbläsaren.
+5. Skriv in i adressfönstret "localhost:7777".
+6. Matbeställningsappen ska nu visas.
+
+För att testa de andra sidorna skriver du deras namn med .html.
+Ex. "localhost:7777/koket.html"
+
+Vill du testa med flera enheter ersätter du på dessa "localhost" med IP nummret som visas i kommandotolket/terminalen.
+OBS båda enheterna måste vara kopplade till samma nätverk.

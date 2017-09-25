@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matbeställning - Skapa konto</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="yes" name="mobile-web-app-capable" />
+	<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<style type="text/css">
+		img{
+			width: 50%;
+			padding: 30px;
+		}
+		input, select, textarea{
+			zoom: 2;
+		}
+		p{
+			padding-bottom: 0px;
+			margin-bottom: 0px;
+		}
+		input[type=button]{
+			width: 100%;
+		}
+		body{
+			text-align: center;
+		}
+		#wrapper{
+			text-align: left;
+			display: inline-block;
+			max-width: 400px;
+		}
+		#imgcenter{
+			text-align: center;
+		}
+		#messagewrapper{
+			position:absolute;
+			top: 0px;
+			left: 0px;
+			text-align: center;
+			width: 100%;
+		}
+		#message{
+			display: inline-block;
+			font-size: 20px;
+			padding: 10px;
+			margin: 5px;
+			width: 90%;
+			background-color: lightgray;
+			border: solid #000 2px;
+			border-radius: 15px;
+			text-align: left;
+		}
+		.head{
+			font-weight: bold;
+		}
+	</style>
+	<script type="text/javascript">
+		function load(){
+			document.getElementsByName('telnummer')[0].focus();	
+		};
+		function reg(){
+			document.getElementById('stepone').setAttribute('style', 'display: none;');
+			document.getElementById('steptwo').removeAttribute('style');
+			document.getElementsByName('kod')[0].focus();
+			setTimeout(function(){
+				document.getElementById('messagewrapper').removeAttribute('style');
+			}, 3000);
+		};
+		function code(){
+			var inputcode = document.getElementsByName('kod')[0];
+			if(inputcode.value == 'abc123'){
+				window.open('app.html', '_parent');
+			}else{
+				inputcode.setAttribute('style', 'background-color: red;')
+			};
+		};
+	</script>
+</head>
+<body onload="load();">
+<div id="messagewrapper" style="display: none;">
+	<div id="message">
+		<p class="head">Matdags</p>
+		<p>Din kod är: abc123</p>
+	</div>
+</div>
+<div id="wrapper">
+<div id="imgcenter">
+	<img src="ikon.png">
+</div>
+<div id="stepone">
+	<p>Telefonnummer:</p>
+	<input type="tel" name="telnummer"><br/><br/>
+	<input type="button" onclick="reg()" value="Registrera" name="">
+</div>
+<div id="steptwo" style="display: none;">
+	<p>Skriv in kod nedan, som du strax får i ett sms</p>
+	<input type="text" name="kod" autocorrect="off" autocapitalize="none"><br/><br/>
+	<input type="button" value="Skicka kod" name="" onclick="code();">
+</div>
+</div>
+</body>
+</html>

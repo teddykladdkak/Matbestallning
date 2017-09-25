@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matbeställning</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="yes" name="mobile-web-app-capable" />
+	<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<script type="text/javascript">
+	String.prototype.capitalize = function() {
+	    return this.charAt(0).toUpperCase() + this.slice(1);
+	};
+		function addtable(info){
+			/*console.log(message.typ);
+			console.log(message.id);
+			console.log(message.kost);
+			console.log(message.komment);
+			console.log(message.val);
+			console.log(message.datum);
+			console.log(message.storlek);*/
+			info.val.reverse();
+			var table = document.createElement('table');
+				var thead = document.createElement('thead');
+					var theadtr = document.createElement('tr');
+						var tddate = document.createElement('td');
+							tddate.setAttribute('class', 'nonewline');
+							var tddatetext = document.createTextNode(info.datum + '   ');
+							tddate.appendChild(tddatetext);
+						theadtr.appendChild(tddate);
+						var tdtyp = document.createElement('td');
+							var tdtyptext = document.createTextNode(info.typ.capitalize());
+							tddate.appendChild(tdtyptext);
+						theadtr.appendChild(tdtyp);
+						var tdavd = document.createElement('td');
+							tdavd.setAttribute('class', 'right');
+							var tdavdtext = document.createTextNode('XX');
+							tdavd.appendChild(tdavdtext);
+						theadtr.appendChild(tdavd);
+					thead.appendChild(theadtr);
+				table.appendChild(thead);
+				var tbody = document.createElement('tbody');
+					var trmain = document.createElement('tr');
+						var tdmain = document.createElement('td');
+							tdmain.setAttribute('class', 'bold');
+							var tdmaintext = document.createTextNode(info.val[0]);
+							tdmain.appendChild(tdmaintext);
+						trmain.appendChild(tdmain);
+						var tdmainstorlek = document.createElement('td');
+							tdmainstorlek.setAttribute('class', 'bold');
+							var tdmainstorlektext = document.createTextNode(info.storlek);
+							tdmainstorlek.appendChild(tdmainstorlektext);
+						trmain.appendChild(tdmainstorlek);
+						var tdmaininfo = document.createElement('td');
+							tdmaininfo.setAttribute('class', 'bred');
+							var tdmaininfotext = document.createTextNode('...');
+							tdmaininfo.appendChild(tdmaininfotext);
+						trmain.appendChild(tdmaininfo);
+					tbody.appendChild(trmain);
+					var trvtsk = document.createElement('tr');
+						var tdvtsk = document.createElement('td');
+							tdvtsk.setAttribute('class', 'bold');
+							var tdvtsktext = document.createTextNode(info.val[1]);
+							tdvtsk.appendChild(tdvtsktext);
+						trvtsk.appendChild(tdvtsk);
+						var tdvtskstorlek = document.createElement('td');
+							tdvtskstorlek.setAttribute('class', 'bold');
+							var tdvtskstorlektext = document.createTextNode(info.storlek);
+							tdvtskstorlek.appendChild(tdvtskstorlektext);
+						trvtsk.appendChild(tdvtskstorlek);
+						var tdvtskinfo = document.createElement('td');
+							tdvtskinfo.setAttribute('class', 'bred');
+							var tdvtskinfotext = document.createTextNode('...');
+							tdvtskinfo.appendChild(tdvtskinfotext);
+						trvtsk.appendChild(tdvtskinfo);
+					tbody.appendChild(trvtsk);
+					var trtillbehor = document.createElement('tr');
+						var tdtillbehor = document.createElement('td');
+							tdtillbehor.setAttribute('class', 'bold');
+							if(!info.val[2]){}else{
+							var tdtillbehortext = document.createTextNode(info.val[2]);
+							tdtillbehor.appendChild(tdtillbehortext);
+							};
+						trtillbehor.appendChild(tdtillbehor);
+						var tdtillbehorstorlek = document.createElement('td');
+							tdtillbehorstorlek.setAttribute('class', 'bold');
+							var tdtillbehorstorlektext = document.createTextNode(info.storlek);
+							tdtillbehorstorlek.appendChild(tdtillbehorstorlektext);
+						trtillbehor.appendChild(tdtillbehorstorlek);
+						var tdtillbehorinfo = document.createElement('td');
+							tdtillbehorinfo.setAttribute('class', 'bred');
+							var tdtillbehorinfotext = document.createTextNode('...');
+							tdtillbehorinfo.appendChild(tdtillbehorinfotext);
+						trtillbehor.appendChild(tdtillbehorinfo);
+					tbody.appendChild(trtillbehor);
+					var trbottom = document.createElement('tr');
+						var tdrum = document.createElement('td');
+							var tdrumtext = document.createTextNode('X:X ' + info.id);
+							tdrum.appendChild(tdrumtext);
+						trbottom.appendChild(tdrum);
+						var tdanteck = document.createElement('td');
+							tdanteck.setAttribute('class', 'right');
+							tdanteck.setAttribute('colspan', '2');
+							var tdantecktext = document.createTextNode(info.komment);
+							tdanteck.appendChild(tdantecktext);
+						trbottom.appendChild(tdanteck);
+					tbody.appendChild(trbottom);
+				table.appendChild(tbody);
+			return table;
+		};
+		function addstatistik(info){
+			console.log(info.datum);
+			console.log(info.id);
+			console.log(info.smiley);
+			console.log(info.komment);
+			console.log(info.portionprocent);
+			var wrapper = document.getElementById('statistikwrapper');
+				var line = document.createElement('tr');
+					var tddattum = document.createElement('td');
+						var tddattumtext = document.createTextNode(info.datum);
+						tddattum.appendChild(tddattumtext);
+					line.appendChild(tddattum);
+					var tdid = document.createElement('td');
+						var tdidtext = document.createTextNode(info.id);
+						tdid.appendChild(tdidtext);
+					line.appendChild(tdid);
+					var tdgradering = document.createElement('td');
+						var tdgraderingtext = document.createTextNode(info.smiley);
+						tdgradering.appendChild(tdgraderingtext);
+					line.appendChild(tdgradering);
+					var tdprocent = document.createElement('td');
+						var tdprocenttext = document.createTextNode((info.portionprocent * 100) + '%');
+						tdprocent.appendChild(tdprocenttext);
+					line.appendChild(tdprocent);
+					var tdkommentar = document.createElement('td');
+						var tdkommentartext = document.createTextNode(info.komment);
+						tdkommentar.appendChild(tdkommentartext);
+					line.appendChild(tdkommentar);
+				wrapper.insertBefore(line, wrapper.childNodes[0]);
+		};
+	</script>
+	<style type="text/css">
+		#bestallningsbrickor table{
+			border-collapse: collapse;
+			width: 500px;
+			height: 300px;
+		}
+		#bestallningsbrickor table{
+			border: 1px solid #000;
+			margin: 20px;
+		}
+		#bestallningsbrickor table thead{
+			border-bottom: 3px solid #000;
+		}
+		#bestallningsbrickor .right{
+			text-align: right;
+		}
+		#bestallningsbrickor .bold{
+			font-weight: bold;
+		}
+		#bestallningsbrickor .bred{
+			width: 100%;
+		}
+		#bestallningsbrickor .nonewline{
+			white-space: nowrap;
+		}
+		#statistik table{
+			border-collapse: collapse;
+		}
+		#statistik table td{
+			border: solid 3px #000;
+		}
+	</style>
+</head>
+<body>
+	<div id="bestallningsbrickor"></div>
+	<div id="statistik">
+		<table>
+			<thead>
+				<tr>
+					<td>Datum</td>
+					<td>ID</td>
+					<td>Gradering 1-5</td>
+					<td>% av portion</td>
+					<td>Kommentar</td>
+				</tr>
+			</thead>
+			<tbody id="statistikwrapper"></tbody>
+		</table>
+	</div>
+	<script>
+		//Tar server id enbart för att koppla till socket
+		var geturl = window.location.href.replace('http://', '').split('/')[0];
+		//Lyssnar om server säger något
+		var socket = io.connect(geturl);
+
+		// A dialog box is displayed when the server sends us a "message"
+		socket.on('message', function(message) {
+			console.log(message);
+		});
+		//Lägger till infomration till önskad textarea
+		/*socket.on('skickareg', function(message) {
+			console.log(message.datum);
+			console.log(message.id);
+			console.log(message.smiley);
+			console.log(message.komment);
+			console.log(message.portionprocent);
+			addstatistik(message);
+		});*/
+		socket.on('skickabestall', function(message) {
+			console.log(message.typ);
+			console.log(message.id);
+			console.log(message.kost);
+			console.log(message.komment);
+			console.log(message.val);
+			console.log(message.datum);
+			console.log(message.storlek);
+			var wrapper = document.getElementById('bestallningsbrickor');
+			wrapper.insertBefore(addtable(message), wrapper.childNodes[0]);
+		});
+		
+	</script>
+	<!--<table>
+		<thead>
+			<tr>
+				<td>XXXX-XX-XX</td>
+				<td>Lunch</td>
+				<td class="right">XX</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td class="bold">Husman</td>
+				<td class="bold">N</td>
+				<td>Grekisk ungsfärs</td>
+			</tr>
+			<tr>
+				<td class="bold">Råkost</td>
+				<td class="bold">N</td>
+				<td>Blandad sallad med gurka och syltlök</td>
+			</tr>
+			<tr>
+				<td class="bold">Potatis</td>
+				<td class="bold">N</td>
+				<td>Ungsstekt potatis</td>
+			</tr>
+			<tr>
+				<td>X:X Xxxx</td>
+				<td colspan="2" class="right">-fisk</td>
+			</tr>
+		</tbody>
+	</table>-->
+</body>
+</html>

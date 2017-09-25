@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matbeställning</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style type="text/css">
+		#fragawrapper{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			text-align: center;
+		}
+		#fraga{
+			background-color: #FFF;
+			text-align: left;
+			width: 100%;
+			max-width: 400px;
+			display: inline-block;
+			border: solid 3px #000;
+			border-radius: 25px;
+			padding: 10px;
+		}
+		#fraga img {
+			width: 100%;
+		}
+		#fraga textarea {
+			width: 98%;
+		}
+		#fraga table.ring{
+			width: 200px;
+			height: 200px;
+			margin: 0px auto;
+			/*border-collapse: collapse;*/
+		}
+		#fraga table.ring td{
+			border: solid 3px #000;
+			/*border-radius: 100px;*/
+		}
+		#fraga table.ring td.chosen{
+			background-color: lightblue;
+		}
+		#fraga table.ring tr:first-child td:first-child{
+			border-top-left-radius: 100px;
+		}
+		#fraga table.ring tr:first-child td:last-child{
+			border-top-right-radius: 100px;
+		}
+		#fraga table.ring tr:last-child td:first-child{
+			border-bottom-left-radius: 100px;
+		}
+		#fraga table.ring tr:last-child td:last-child{
+			border-bottom-right-radius: 100px;
+		}
+		#smiley td{
+			border: solid 3px #FFF;
+		}
+		#smiley td.chosen{
+			border: solid 3px lightblue;
+		}
+		/*#fraga table.line{
+			width: 100%;
+			height: 50px;
+			border-collapse: collapse;
+		}
+		#fraga table.line td{
+			border: solid 3px #000;
+		}
+		#fraga table.line td.chosen{
+			background-color: lightblue;
+		}*/
+		#fraga input{
+			zoom: 2;
+			width: 100%;
+			margin: 5px 0px;
+		}
+	</style>
+	<script type="text/javascript">
+		function mangdchose(element){
+			var number = element.getAttribute('data-number');
+			var todo = element.getAttribute('class');
+			var parent = element.parentElement.parentElement.getElementsByTagName('td');
+			for (var i = parent.length - 1; i >= 0; i--) {parent[i].removeAttribute('class');};
+			if(todo == 'chosen'){var number = parseInt(number) - 1;};
+			for (var i = parent.length - 1; i >= 0; i--) {
+				if(parent[i].getAttribute('data-number') <= number){
+					parent[i].setAttribute('class', 'chosen');
+				};
+			};
+		};
+		function marksmiley(element){
+			var allsmileys = element.parentElement.getElementsByTagName('td');
+			for (var i = allsmileys.length - 1; i >= 0; i--) {
+				allsmileys[i].removeAttribute('class');
+			};
+			element.setAttribute('class', 'chosen');
+		};
+		function skickareg(){
+			var smileynummer = document.getElementById('smiley').getElementsByClassName('chosen')[0].getAttribute('data-number');
+			var portion = document.getElementById('ringwrapper').getElementsByClassName('chosen').length;
+			console.log('Tyckte: ' + smileynummer + ', Åt: ' + (parseInt(portion) / 4) + ' portioner');
+			document.getElementById('fragawrapper').setAttribute('style', 'display: none;');
+		};
+	</script>
+</head>
+<body>
+	<div id="namn"><h1>Hej A:E -94! Dags att beställa mat för morgondagen.</h1></div>
+	<div id="fragawrapper">
+		<div id="fraga">
+			<p>Vad tyckte du om maten idag?</p>
+			<table id="smiley">
+				<tr><td onclick="marksmiley(this)" data-number="1"><img src="1.png"></td><td onclick="marksmiley(this)" data-number="2"><img src="2.png"></td><td class="chosen" onclick="marksmiley(this)" data-number="3"><img src="3.png"></td><td onclick="marksmiley(this)" data-number="4"><img src="4.png"></td><td onclick="marksmiley(this)" data-number="5"><img src="5.png"></td></tr>
+			</table>
+			<p>Kommentar</p>
+			<textarea></textarea>
+			<p>Hur mycket av maten åt du?</p>
+			<!--<table class="line">
+				<tr>
+					<td class="chosen" onclick="mangdchose(this)" data-number="1"></td>
+					<td class="chosen" onclick="mangdchose(this)" data-number="2"></td>
+					<td class="chosen" onclick="mangdchose(this)" data-number="3"></td>
+					<td class="chosen" onclick="mangdchose(this)" data-number="4"></td>
+				</tr>
+			</table>-->
+			<div id="ringwrapper">
+				<table class="ring">
+					<tr><td class="chosen" onclick="mangdchose(this)" data-number="1"></td><td class="chosen" onclick="mangdchose(this)" data-number="4"></td></tr>
+					<tr><td class="chosen" onclick="mangdchose(this)" data-number="2"></td><td class="chosen" onclick="mangdchose(this)" data-number="3"></td></tr>
+				</table>
+			</div>
+			<input type="button" value="Skicka" name="" onclick="skickareg()">
+		</div>
+	</div>
+</body>
+</html>

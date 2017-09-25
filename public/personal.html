@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Personal vy</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style type="text/css">
+		table.tabbuttons{
+			border-collapse: collapse;
+			width: 100%;
+		}
+		table.tabbuttons tr td{
+			border: solid 1px #000;
+			padding: 5px;
+		}
+		td.statusbutton{
+			border: solid 2px #000;
+			padding: 5px;
+		}
+		td.statusbutton.done{
+			background-color: white;
+			color: gray;
+		}
+		td.statusbutton.pending{
+			background-color: yellow;
+		}
+		td.statusbutton.ready{
+			background-color: green;
+		}
+		td.statusbutton.late{
+			background-color: red;
+		}
+		.wrapper{
+			border-top: solid 3px #000;
+			border-bottom: solid 3px #000;
+		}
+		p{
+			padding-bottom: 0px;
+			margin-bottom: 0px;
+		}
+		.historiktable{
+			margin: 5px;
+			white-space: nowrap;
+		}
+		.historiktable, .historiktable td{
+			border-collapse: collapse;
+			border: solid 2px #000;
+		}
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
+	<script type="text/javascript">
+		var beds = ['1:2', '1:3', '2:1', '2:2', '3:1'];
+		function simuleradata(){
+			var antaldagar = 8;
+			var numbers = [];
+			for (var a = antaldagar - 1; a >= 0; a--) {
+				var nyentry = {date: datum(- a), number: randomnumber()};
+				numbers.push(nyentry);
+			};
+			var data = {
+				malkal: '2500',
+				historik: numbers
+			};
+			return data;
+		};
+		function greenorred(){
+			var color = ["ready", "late"];
+			return color[Math.round((Math.random()))];
+		};
+		function yelloworgreen(){
+			var color = ["ready", "pending"];
+			return color[Math.round((Math.random()))];
+		};
+		function simulerastatus(){
+			var time = new Date();
+			var hour = time.getHours() + 1;
+			if(hour <= 8){
+				console.log('Nu är det strax frukost.');
+				var data = {f: greenorred(),m: yelloworgreen(),l: yelloworgreen(),k: yelloworgreen()};
+			}else if(hour <= 13){
+				console.log('Nu är det strax middag.');
+				var data = {f: "done",m: greenorred(),l: yelloworgreen(),k: yelloworgreen()};
+			}else if(hour <= 17){
+				console.log('Nu är det strax lunch.');
+				var data = {f: "done",m: "done",l: greenorred(),k: yelloworgreen()};
+			}else if(hour <= 21){
+				console.log('Nu är det strax kvällsmat.');
+				var data = {f: "done",m: "done",l: "done",k: greenorred()};
+			}else{
+				var data = {f: "done",m: "done",l: "done",k: "done"};
+			};
+			return data;
+		};
+		function loadbeds(){
+			beds.reverse();
+			var wrapper = document.getElementById('wrapper');
+			for (var i = beds.length - 1; i >= 0; i--) {
+/*############################Simulerar dataström###############################*/
+			var data = simuleradata();		
+/*############################Simulerar dataström###############################*/
+				var bedwrapper = document.createElement('div');
+					bedwrapper.setAttribute('id', beds[i].replace(':', '-'));
+					bedwrapper.setAttribute('class', 'wrapper');
+					var head = document.createElement('div');
+						head.setAttribute('class', 'head');
+						var tablehead = document.createElement('table');
+							var linehead = document.createElement('tr');
+								var infowrapper = document.createElement('td');
+									infowrapper.setAttribute('style', 'width: 100%;')
+									var number = document.createElement('span');
+										number.setAttribute('class', 'number');
+										var numbertext = document.createTextNode(beds[i]);
+										number.appendChild(numbertext);
+									infowrapper.appendChild(number);
+									var name = document.createElement('span');
+										name.setAttribute('class', 'name');
+									infowrapper.appendChild(name);
+									var status = document.createElement('span');
+									infowrapper.appendChild(status);
+								linehead.appendChild(infowrapper);
+								var status = simulerastatus();
+								var frukost = document.createElement('td');
+									frukost.setAttribute('class', 'statusbutton ' + status.f);
+									var frukosttext = document.createTextNode('F');
+									frukost.appendChild(frukosttext);
+								linehead.appendChild(frukost);
+								var middag = document.createElement('td');
+									middag.setAttribute('class', 'statusbutton ' + status.m);
+									var middagtext = document.createTextNode('M');
+									middag.appendChild(middagtext);
+								linehead.appendChild(middag);
+								var lunch = document.createElement('td');
+									lunch.setAttribute('class', 'statusbutton ' + status.l);
+									var lunchtext = document.createTextNode('L');
+									lunch.appendChild(lunchtext);
+								linehead.appendChild(lunch);
+								var kvall = document.createElement('td');
+									kvall.setAttribute('class', 'statusbutton ' + status.k);
+									var kvalltext = document.createTextNode('K');
+									kvall.appendChild(kvalltext);
+								linehead.appendChild(kvall);
+
+							tablehead.appendChild(linehead);
+						head.appendChild(tablehead);
+
+					bedwrapper.appendChild(head);
+					var content = document.createElement('div');
+						content.setAttribute('class', 'content');
+						var tabs = document.createElement('table');
+							tabs.setAttribute('class', 'tabbuttons');
+							var tabrow = document.createElement('tr');
+								var tabtexts = [{
+									namn:'Historik',
+									id: 'historik'
+								},{
+									namn: 'Beställningar',
+									id: 'bestallningar'
+								},{
+									namn: 'Patienthantering',
+									id: 'patienthantering'
+								},{
+									namn: 'Lägg till',
+									id: 'laggtill'
+								}].reverse();
+								for (var y = tabtexts.length - 1; y >= 0; y--) {
+									var tabelement = document.createElement('td');
+										tabelement.setAttribute('onclick', 'showtab("' + beds[i].replace(':', '-') + '", "' + tabtexts[y].id + '")')
+										var tabelementtext = document.createTextNode(tabtexts[y].namn);
+										tabelement.appendChild(tabelementtext);
+									tabrow.appendChild(tabelement);
+								};
+							tabs.appendChild(tabrow);
+						content.appendChild(tabs);
+						var laggtill = document.createElement('div');
+							laggtill.setAttribute('class', 'laggtill tab');
+							laggtill.setAttribute('style', 'display: none;');
+							//var laggtilltext = document.createTextNode('Lagg till');
+							//laggtill.appendChild(laggtilltext);
+							laggtill.appendChild(laggtillpage());
+						content.appendChild(laggtill);
+						var historik = document.createElement('div');
+							historik.setAttribute('class', 'historik tab');
+							/*var historiktext = document.createTextNode('Historik');
+							historik.appendChild(historiktext);*/
+							historik.appendChild(historikpage(data));
+						content.appendChild(historik);
+						var bestallningar = document.createElement('div');
+							bestallningar.setAttribute('class', 'bestallningar tab');
+							bestallningar.setAttribute('style', 'display: none;');
+							var bestallningartext = document.createTextNode('Beställningar');
+							bestallningar.appendChild(bestallningartext);
+						content.appendChild(bestallningar);
+						var patienthantering = document.createElement('div');
+							patienthantering.setAttribute('class', 'patienthantering tab');
+							patienthantering.setAttribute('style', 'display: none;');
+							/*var patienthanteringtext = document.createTextNode('Patienthantering');
+							patienthantering.appendChild(patienthanteringtext);*/
+							patienthantering.appendChild(hanterapage());
+						content.appendChild(patienthantering);
+					bedwrapper.appendChild(content);
+				wrapper.appendChild(bedwrapper);
+
+				drawcanvas(beds.length - i - 1, data);
+			};
+		};
+		function showtab(number, id){
+			var numberwrapper = document.getElementById(number.replace(':', '-'));
+			var alltabelements = numberwrapper.getElementsByClassName('tab');
+			for (var i = alltabelements.length - 1; i >= 0; i--) {
+				alltabelements[i].setAttribute('style', 'display: none;');
+			}
+			var elementtoshow = numberwrapper.getElementsByClassName(id)[0];
+				elementtoshow.removeAttribute('style');
+		};
+		function brake(){
+			var brake = document.createElement('br');
+			return brake;
+		};
+		function laggtillpage(){
+			var wrapper = document.createElement('span');
+				var info = document.createElement('p');
+					var infotext = document.createTextNode('Skriv in patientens telefonnummer:');
+					info.appendChild(infotext);
+				wrapper.appendChild(info);
+				var input = document.createElement('input');
+					input.setAttribute('type', 'tel');
+				wrapper.appendChild(input);
+				wrapper.appendChild(brake());
+				var laggtill = document.createElement('input');
+					laggtill.setAttribute('type', 'button');
+					laggtill.setAttribute('value', 'Lägg till');
+				wrapper.appendChild(laggtill);
+				var skrivut = document.createElement('input');
+					skrivut.setAttribute('type', 'button');
+					skrivut.setAttribute('value', 'Skriv ut');
+				wrapper.appendChild(skrivut);
+				var flytta = document.createElement('input');
+					flytta.setAttribute('type', 'button');
+					flytta.setAttribute('value', 'Flytta');
+				wrapper.appendChild(flytta);
+				wrapper.appendChild(brake());
+				wrapper.appendChild(brake());
+			return wrapper;
+		};
+		function hanterapage(){
+			var wrapper = document.createElement('span');
+				var initialhead = document.createElement('p');
+					var initialheadtext = document.createTextNode('Initial');
+					initialhead.appendChild(initialheadtext);
+				wrapper.appendChild(initialhead);
+				var initalinput = document.createElement('input');
+					initalinput.setAttribute('type', 'text');
+					initalinput.setAttribute('class', 'initialhantera');
+				wrapper.appendChild(initalinput);
+				wrapper.appendChild(brake());
+				var allergihead = document.createElement('p');
+					var allergiheadtext = document.createTextNode('Har patienten någon kost-allergi?');
+					allergihead.appendChild(allergiheadtext);
+				wrapper.appendChild(allergihead);
+				var allergicheckp = document.createElement('p');
+					var allergicheck = document.createElement('input');
+						allergicheck.setAttribute('type', 'checkbox');
+						allergicheck.setAttribute('class', 'checkallergihantera');
+					allergicheckp.appendChild(allergicheck);
+					var allergichecktext = document.createTextNode(' Ja');
+					allergicheckp.appendChild(allergichecktext);
+				wrapper.appendChild(allergicheckp);
+				wrapper.appendChild(brake());
+				var allergibeskrivhead = document.createElement('p');
+					var allergibeskrivheadtext = document.createTextNode('Beskriv allergi');
+					allergibeskrivhead.appendChild(allergibeskrivheadtext);
+				wrapper.appendChild(allergibeskrivhead);
+				var allergibeskrivtextarea = document.createElement('textarea');
+					allergibeskrivtextarea.setAttribute('class', 'allergihantera');
+				wrapper.appendChild(allergibeskrivtextarea);
+				wrapper.appendChild(brake());
+				var kosthead = document.createElement('p');
+					var kostheadtext = document.createTextNode('Vilken kosttyp ska patienten ha?');
+					kosthead.appendChild(kostheadtext);
+				wrapper.appendChild(kosthead);
+				var koster = ['A-kost', 'E-kost', 'Vegetarisk', 'Vegan'].reverse();
+				var kostselect = document.createElement('select');
+					kostselect.setAttribute('class', 'kosthantera');
+					for (var i = koster.length - 1; i >= 0; i--) {
+						var kostoption = document.createElement('option');
+							kostoption.setAttribute('value', koster[i]);
+							var kostoptiontext = document.createTextNode(koster[i]);
+							kostoption.appendChild(kostoptiontext);
+						kostselect.appendChild(kostoption);
+					};
+				wrapper.appendChild(kostselect);
+				wrapper.appendChild(brake());
+				var ovrigthead = document.createElement('p');
+					var ovrigtheadtext = document.createTextNode('Övriga kommentarer');
+					ovrigthead.appendChild(ovrigtheadtext);
+				wrapper.appendChild(ovrigthead);
+				var ovrigttextarea = document.createElement('textarea');
+					ovrigttextarea.setAttribute('class', 'ovrigthantera');
+				wrapper.appendChild(ovrigttextarea);
+				/*var extra = document.createElement('p');
+					var extrahead = document.createTextNode('Patientdata');
+					extra.appendChild(extrahead);
+				wrapper.appendChild(extra);
+				var kg = document.createElement('input');
+					kg.setAttribute('type', 'number');
+					kg.setAttribute('class', 'kg');
+				wrapper.appendChild(kg);
+				var kginfo = document.createElement('label');
+					var kginfotext = document.createTextNode(' Kg');
+					kginfo.appendChild(kginfotext);
+				wrapper.appendChild(kginfo);
+				wrapper.appendChild(brake());
+				var langd = document.createElement('input');
+					langd.setAttribute('type', 'number');
+					langd.setAttribute('class', 'langd');
+				wrapper.appendChild(langd);
+				var langdinfo = document.createElement('label');
+					var langdinfotext = document.createTextNode(' Längd');
+					langdinfo.appendChild(langdinfotext);
+				wrapper.appendChild(langdinfo);*/
+				wrapper.appendChild(brake());
+				wrapper.appendChild(brake());
+			return wrapper;
+		};
+		function randomnumber(){
+			return Math.floor((Math.random() * 3000) + 50);
+		}
+		function datum(eventuelltdatum){
+			if(!eventuelltdatum){
+				var d = new Date();
+			}else{
+				var today = new Date();
+				var d = new Date();
+					d.setDate(today.getDate() + parseInt(eventuelltdatum));
+			};
+			var year = d.getFullYear();
+			var month = d.getMonth() + 1;
+			var day = d.getDate();
+			if(day <= 9){var day = '0' + day;};
+			if(month <= 9){var month = '0' + month;};
+			var datetonumber = year + '-' + month + '-' + day;
+			return datetonumber;
+		};
+		function historikpage(data){
+			var tabel = document.createElement('table');
+				tabel.setAttribute('class', 'historiktable');
+				var tr = document.createElement('tr');
+					var linetabelwrapper = document.createElement('td');
+						linetabelwrapper.setAttribute('rowspan', data.historik.length + 1);
+						var thecanvas = document.createElement('canvas');
+							thecanvas.setAttribute('width', '300px');
+							thecanvas.setAttribute('height', '300px');
+							thecanvas.setAttribute('class', 'chart');
+						linetabelwrapper.appendChild(thecanvas);
+					tr.appendChild(linetabelwrapper);
+					var firstdate = document.createElement('td');
+						var firstdatetext = document.createTextNode('Datum');
+						firstdate.appendChild(firstdatetext);
+					tr.appendChild(firstdate);
+					var firstval = document.createElement('td');
+						var firstvaltext = document.createTextNode('Dagligt intag');
+						firstval.appendChild(firstvaltext);
+					tr.appendChild(firstval);
+					var firstplus = document.createElement('td');
+						var firstplustext = document.createTextNode('Balans');
+						firstplus.appendChild(firstplustext);
+					tr.appendChild(firstplus);
+				tabel.appendChild(tr);
+				data.historik.reverse();
+				for (var i = data.historik.length - 1; i >= 0; i--) {
+					var line = document.createElement('tr');
+						line.setAttribute('class', 'data');
+						var date = document.createElement('td');
+							var datetext = document.createTextNode(data.historik[i].date);
+							date.appendChild(datetext);
+						line.appendChild(date);
+						var linewrapper = document.createElement('td');
+							var lintetext = document.createTextNode(data.historik[i].number + ' kcal');
+							linewrapper.appendChild(lintetext);
+						line.appendChild(linewrapper);
+						var plus = document.createElement('td');
+							var count = parseInt(data.historik[i].number) - parseInt(data.malkal);
+							if(count == 0){var count = '± 0'};
+							var plustext = document.createTextNode(count + ' kcal');
+							plus.appendChild(plustext);
+						line.appendChild(plus);
+					tabel.appendChild(line);
+				};
+			return tabel;
+		};
+		function drawcanvas(number, information){
+			//options
+			var data = {
+			    labels: [],
+			    datasets: [
+			        {
+			            label: "Dagligt intag",
+			            fill: false,
+			            lineTension: 0.1,
+			            backgroundColor: "rgba(75,192,192,0.4)",
+			            borderColor: "rgba(75,192,192,1)",
+			            borderCapStyle: 'butt',
+			            borderDash: [],
+			            borderDashOffset: 0.0,
+			            borderJoinStyle: 'miter',
+			            pointBorderColor: "rgba(75,192,192,1)",
+			            pointBackgroundColor: "#fff",
+			            pointBorderWidth: 1,
+			            pointHoverRadius: 5,
+			            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+			            pointHoverBorderColor: "rgba(220,220,220,1)",
+			            pointHoverBorderWidth: 2,
+			            pointRadius: 1,
+			            pointHitRadius: 10,
+			            data: [],
+			            spanGaps: false,
+			        },
+			        {
+			        	label: "Rekomenterat dagligt intag",
+			        	fill: true,
+			        	borderJoinStyle: 'line',
+			        	pointStyle: 'line',
+			        	backgroundColor: "rgba(192,192,192,0.4)",
+			        	pointBorderColor: "rgba(0,0,0,0)",
+			        	pointBackgroundColor: "rgba(0,0,0,0)",
+			        	borderColor: "rgba(0,0,0,0)",
+			        	data: [],
+			        }
+			    ]
+			};
+			//Lägger in information i options
+			information.historik.reverse();
+			for (var i = information.historik.length - 1; i >= 0; i--) {
+				data.labels.unshift(information.historik[i].date);
+				data.datasets[0].data.unshift(information.historik[i].number);
+				data.datasets[1].data.unshift(information.malkal);
+			}
+			//Skapar graf
+			var canvaswrapper = document.getElementsByClassName('chart')[number];
+			var myLineChart = new Chart(canvaswrapper, {
+			    type: 'line',
+			    data: data,
+			});
+		};
+	</script>
+</head>
+<body onload="loadbeds();">
+	<div id="wrapper">
+		
+	</div>
+</body>
+</html>

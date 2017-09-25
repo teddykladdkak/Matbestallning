@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Matbeställning</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta content="yes" name="apple-mobile-web-app-capable" />
+	<meta content="yes" name="mobile-web-app-capable" />
+	<meta content="minimum-scale=1.0, width=device-width, maximum-scale=0.6667, user-scalable=no" name="viewport" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<style type="text/css">
+	body{
+		margin: 0px;
+		padding: 0px;
+	}
+	input, select, textarea{
+		zoom: 1.5;
+	}
+	#wrapper{
+		text-align: center;
+	}
+	#wrapper h2, #foodinfo h2{
+		border-top: solid 3px #aaa;
+		border-bottom: solid 3px #aaa;
+		text-align: center;
+	}
+	.foodelement{
+		width: 50%;
+		max-width: 400px;
+		height: auto;
+		display: inline-block;
+	}
+	.foodelement img{
+		width: 90%;
+		margin: 10px;
+	}
+	.foodelement p{
+		margin: 10px;
+	}
+	#foodinfowrapper{
+		text-align: center;
+	}
+	#extrafoodinfo, #foodinfo{
+		text-align: left;
+		display: none;
+		width: 100%;
+		max-width: 400px;
+		border: solid 2px #000;
+		padding: 10px;
+		margin: -14px;
+	}
+	#foodinfo div.foodinfotext{
+		
+	}
+	#foodinfo div.foodinfotext p{
+		border: solid 2px #000;
+		border-radius: 25px;
+		padding: 10px;
+	}
+	#foodinfo img{
+		width: 100%;
+	}
+	#foodinfo .storlek{
+		text-align: center;
+	}
+	#extrafoodinfo ul, #foodinfo ul {
+		padding: 0px;
+		border-top: solid 1px #000;
+		border-bottom: solid 1px #000;
+	}
+	#extrafoodinfo ul li, #foodinfo ul li{
+		list-style-type: none;
+		padding: 5px;
+		border-top: solid 1px #aaa;
+		border-bottom: solid 1px #aaa;
+	}
+	#foodinfo .right{
+		text-align: right;
+		float:right;
+	}
+	#time {
+		font-size: 20px;
+		background-color: #000;
+		color: #FFF;
+	}
+	#time #date{
+		width: 100%;
+		text-align: center;
+	}
+	#fragawrapper{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			text-align: center;
+		}
+	#fraga{
+		background-color: #FFF;
+		text-align: left;
+		width: 80%;
+		max-width: 400px;
+		display: inline-block;
+		border: solid 3px #000;
+		border-radius: 25px;
+		padding: 10px;
+	}
+	#fraga img {
+		width: 100%;
+	}
+	#fraga textarea {
+		width: 98%;
+	}
+	#fraga table.ring{
+		width: 200px;
+		height: 200px;
+		margin: 0px auto;
+		/*border-collapse: collapse;*/
+	}
+	#fraga table.ring td{
+		border: solid 3px #000;
+		/*border-radius: 100px;*/
+	}
+	#fraga table.ring td.chosen{
+		background-color: lightblue;
+	}
+	#fraga table.ring tr:first-child td:first-child{
+		border-top-left-radius: 100px;
+	}
+	#fraga table.ring tr:first-child td:last-child{
+		border-top-right-radius: 100px;
+	}
+	#fraga table.ring tr:last-child td:first-child{
+		border-bottom-left-radius: 100px;
+	}
+	#fraga table.ring tr:last-child td:last-child{
+		border-bottom-right-radius: 100px;
+	}
+	#smiley td{
+		border: solid 3px #FFF;
+	}
+	#smiley td.chosen{
+		border: solid 3px lightblue;
+	}
+	/*#fraga table.line{
+		width: 100%;
+		height: 50px;
+		border-collapse: collapse;
+	}
+	#fraga table.line td{
+		border: solid 3px #000;
+	}
+	#fraga table.line td.chosen{
+		background-color: lightblue;
+	}*/
+	#fraga input{
+		zoom: 2;
+		width: 100%;
+		margin: 5px 0px;
+	}
+	#demo input, #demo select, #demo textarea{
+		zoom: 2;
+	}
+</style>
+<script type="text/javascript">
+	var food = {
+		fiskpinnar: {
+			namn: 'Fiskpinnar',
+			id: 'fiskpinnar',
+			info: 'Spröda fiskpinnar, serveras med ris och basilikasås...',
+			kcal: '',
+			tags: [],
+			tillbehor: ['ris', 'potatismos', 'potatis']
+		},
+		kottbullar: {
+			namn: 'Köttbullar',
+			id: 'kottbullar',
+			info: 'Köttbullar med svenskt kött, serveras med brunsås, lingonsylt och potatis.',
+			kcal: '',
+			tags: [],
+			tillbehor: ['makaroner', 'potatismos', 'potatis']
+		},
+		kottgryta: {
+			namn: 'Köttgryta',
+			id: 'kottgryta',
+			info: 'Köttgryta med riklig chillismak.',
+			kcal: '',
+			tags: ['Ekologisk'],
+			tillbehor: ['ris', 'potatismos', 'potatis']
+		},
+		pannkakor: {
+			namn: 'Pannkakor',
+			id: 'pannkakor',
+			info: 'Pankakor med grädde och sylt',
+			kcal: '',
+			tags: ['Laktosfi'],
+			tillbehor: []
+		}
+	};
+	var vatska = ['Vatten', 'Saft', 'Mjölk', 'Nyponsoppa', 'Blåbärsoppa', 'Lättöl'];
+	var chema = {
+		middag: ['fiskpinnar', 'kottbullar'],
+		lunch: ['kottgryta', 'pannkakor']
+	};
+/*
+namn: '',
+id: '',
+info: '',
+kcal: '',
+tags: [],
+tillbehor: ['ris', 'potatismos', 'potatis']
+*/
+
+	String.prototype.capitalize = function() {
+	    return this.charAt(0).toUpperCase() + this.slice(1);
+	};
+	function show(maltid, typ){
+		console.log(food[maltid]);
+		document.getElementById('wrapper').setAttribute('style', 'display: none;');
+		var foodinfo = document.getElementById('foodinfo');
+			var header = document.createElement('h2');
+				var headertext = document.createTextNode(food[maltid].namn);
+				header.appendChild(headertext);
+			foodinfo.appendChild(header);
+			var img = document.createElement('img');
+				img.setAttribute('src', 'bilder/mat/' + food[maltid].id + '.jpg');
+			foodinfo.appendChild(img);
+			var beskrivningwrapper = document.createElement('div');
+				beskrivningwrapper.setAttribute('class', 'foodinfotext');
+				var beskrivning = document.createElement('p');
+					var beskrivningtext = document.createTextNode(food[maltid].info);
+					beskrivning.appendChild(beskrivningtext);
+				beskrivningwrapper.appendChild(beskrivning);
+			foodinfo.appendChild(beskrivningwrapper);
+			var storlekwrapper = document.createElement('div');
+				storlekwrapper.setAttribute('class', 'storlek');
+				var storlekp = document.createElement('p');
+					var storlekptext = document.createTextNode('Hur mycket mat vill du ha på tallriken?');
+					storlekp.appendChild(storlekptext);
+				storlekwrapper.appendChild(storlekp);
+				var buttonleft = document.createElement('input');
+					buttonleft.setAttribute('type', 'button');
+					buttonleft.setAttribute('value', '<-');
+					buttonleft.setAttribute('onclick', 'stolek("-")');
+				storlekwrapper.appendChild(buttonleft);
+				var storlek = document.createElement('input');
+					storlek.setAttribute('type', 'text');
+					storlek.setAttribute('value', 'Normal');
+					storlek.setAttribute('id', 'storlekinput');
+				storlekwrapper.appendChild(storlek);
+				var buttonright = document.createElement('input');
+					buttonright.setAttribute('type', 'button');
+					buttonright.setAttribute('value', '->');
+					buttonright.setAttribute('onclick', 'stolek("+")');
+				storlekwrapper.appendChild(buttonright);
+			foodinfo.appendChild(storlekwrapper);
+			var list = document.createElement('ul');
+				list.setAttribute('id', 'finalinfo');
+				list.appendChild(makeli(food[maltid].namn));
+				list.appendChild(makeli(vatska[0], vatska.join(','), 'vatska'));
+				if(food[maltid].tillbehor.length == 0){}else{
+					list.appendChild(makeli(food[maltid].tillbehor[0], food[maltid].tillbehor.join(','), 'tillbehor'));
+				};
+			foodinfo.appendChild(list);
+			foodinfo.appendChild(makebutton('Tillbaka', 'tillbaka();', 'left'));
+			foodinfo.appendChild(makebutton('Beställ', 'bestall("' + typ + '");', 'right'));
+			foodinfo.setAttribute('style', 'display: inline-block;');
+	};
+	function stolek(todo){
+		var storlekinput = document.getElementById('storlekinput');
+		var arrayoptions = ['Liten', 'Normal', 'Stor'];
+		var oldname = storlekinput.getAttribute('value');
+		for (var i = oldname.length - 1; i >= 0; i--) {
+			if(arrayoptions[i] == oldname){
+				var oldval = i;
+			};
+		};
+		if(todo == '+'){
+			var nyval = parseInt(oldval) + 1;
+		}else{
+			var nyval = parseInt(oldval) - 1;
+		};
+		if(nyval == -1){return false;};
+		if(nyval == 3){return false;};
+		storlekinput.setAttribute('value', arrayoptions[nyval]);
+	};
+	function makebutton(text, klick, rightorleft){
+		var inputwrapper = document.createElement('span');
+			inputwrapper.setAttribute('class', rightorleft);
+			var input = document.createElement('input');
+				input.setAttribute('type', 'button');
+				input.setAttribute('value', text);
+				input.setAttribute('onclick', klick);
+			inputwrapper.appendChild(input);
+		return inputwrapper;
+	};
+	function tillbaka(){
+		document.getElementById('wrapper').removeAttribute('style');
+		document.getElementById('foodinfowrapper').removeAttribute('style');
+		var foodinto = document.getElementById('foodinfo');
+			foodinto.removeAttribute('style');
+		while (foodinto.hasChildNodes()) {foodinto.removeChild(foodinto.firstChild);};
+	};
+	function makeli(text, array, typ){
+		var li = document.createElement('li');
+			var litextwrapper = document.createElement('p');
+				var litextspan = document.createElement('span');
+					litextspan.setAttribute('id', typ);
+					var litext = document.createTextNode(text.capitalize());
+					litextspan.appendChild(litext);
+				litextwrapper.appendChild(litextspan);
+				if(!array){}else{
+					litextwrapper.appendChild(makebutton('Ändra', 'change("' + array + '", "' + typ + '")', 'right'));
+				};
+			li.appendChild(litextwrapper);
+		return li;
+	};
+	function change(array, typ){
+		var allelements = array.split(',');
+		console.log(allelements);
+		var extrafoodinfo = document.getElementById('extrafoodinfo');
+		while (extrafoodinfo.hasChildNodes()) {extrafoodinfo.removeChild(extrafoodinfo.firstChild);};
+			var ul = document.createElement('ul');
+			allelements.reverse();
+			for (var i = allelements.length - 1; i >= 0; i--) {
+				var li = document.createElement('li');
+					var p = document.createElement('p');
+						var radio = document.createElement('input');
+							radio.setAttribute('type', 'radio');
+							radio.setAttribute('name', 'change');
+							radio.setAttribute('value', allelements[i]);
+							if(i == allelements.length - 1){
+								radio.setAttribute('checked', 'checked');
+							};
+						p.appendChild(radio);
+						var litext = document.createTextNode(allelements[i]);
+						p.appendChild(litext);
+					li.appendChild(p);
+				ul.appendChild(li);
+			};
+			extrafoodinfo.appendChild(ul);
+			var klar = document.createElement('input');
+				klar.setAttribute('type', 'button');
+				klar.setAttribute('value', 'Klar');
+				klar.setAttribute('onclick', 'makechange("' + typ + '")');
+			extrafoodinfo.appendChild(klar);
+		extrafoodinfo.setAttribute('style', 'display: inline-block;');
+		document.getElementById('foodinfo').setAttribute('style', 'display: none;')
+	};
+	function makechange(typ){
+		document.getElementById('extrafoodinfo').setAttribute('style', 'display: none;');
+		document.getElementById('foodinfo').setAttribute('style', 'display: inline-block;');
+		var allradios = document.getElementsByName('change');
+		for (var i = allradios.length - 1; i >= 0; i--) {
+			if(allradios[i].checked){
+				var nyval = allradios[i].getAttribute('value');
+			};
+		};
+		var textwrapper = document.getElementById(typ);
+		while (textwrapper.hasChildNodes()) {textwrapper.removeChild(textwrapper.firstChild);};
+			var nytext = document.createTextNode(nyval.capitalize());
+			textwrapper.appendChild(nytext);
+		console.log(nyval);
+	};
+	function datum(eventuelltdatum){
+		if(!eventuelltdatum){
+			var d = new Date();
+		}else{
+			var today = new Date();
+			var d = new Date();
+				d.setDate(today.getDate() + parseInt(eventuelltdatum));
+		};
+		var year = d.getFullYear();
+		var month = d.getMonth() + 1;
+		var day = d.getDate();
+		if(day <= 9){var day = '0' + day;};
+		if(month <= 9){var month = '0' + month;};
+		var datetonumber = year + '-' + month + '-' + day;
+		return datetonumber;
+	};
+	function nextdate(element){
+		var number = element.getAttribute('data-numberdate');
+		var alltd = element.parentElement.getElementsByTagName('td');
+		alltd[0].setAttribute('data-numberdate', parseInt(number) - 1);
+		alltd[2].setAttribute('data-numberdate', parseInt(number) + 1);
+		while (alltd[1].hasChildNodes()) {alltd[1].removeChild(alltd[1].firstChild);};
+		alltd[1].appendChild(document.createTextNode(datum(number)));
+	};
+	function loadfood(){
+		var date = document.getElementById('date');
+			var datetext = document.createTextNode(datum());
+			date.appendChild(datetext);
+		var lunchwrapper = document.getElementById('lunch');
+		for (var y = chema.lunch.length - 1; y >= 0; y--) {
+			addfood(lunchwrapper, food[chema.lunch[y]].namn, food[chema.lunch[y]].id, 'lunch');
+		};
+		var middagwrapper = document.getElementById('middag');
+		for (var y = chema.middag.length - 1; y >= 0; y--) {
+			addfood(middagwrapper, food[chema.middag[y]].namn, food[chema.middag[y]].id, 'middag');
+		};
+	};
+	/*function bestall(typ){
+		console.log('Beställning gjord!');
+		var wrapper = document.getElementById('finalinfo');
+			var li = wrapper.getElementsByTagName('li');
+			var array = [];
+			for (var i = li.length - 1; i >= 0; i--) {
+				array.push(li[i].innerText.replace('\n', '').replace('\n', '').replace('\n', '').replace('\n', ''));
+			};
+			var utnamn = document.getElementById('utnamn').innerText;
+			var utkost = document.getElementById('utkost').innerText;
+			var utkommentar = document.getElementById('utkommentar').innerText;
+			var arrayihop = array.join(',');
+			console.log(typ + utnamn + ' - ' + utkost + ' - ' + utkommentar + ' - ' + arrayihop);
+			rensafraga();
+		//document.getElementById('wrapper').removeAttribute('style');
+		//document.getElementById('foodinfowrapper').setAttribute('style', 'display: none;');
+		tillbaka();
+	};*/
+	function visafraga(){
+		console.log('Fraga återställs')
+		var smileytochose = document.getElementById('smiley').getElementsByTagName('td')[2];
+		console.log(smileytochose);
+		marksmiley(smileytochose);
+		document.getElementById('fraga').getElementsByTagName('textarea')[0].value = '';
+		var allslices = document.getElementById('ringwrapper').getElementsByTagName('td');
+		for (var i = allslices.length - 1; i >= 0; i--) {
+			allslices[i].setAttribute('class', 'chosen');
+		};
+		document.getElementById('fragawrapper').removeAttribute('style');
+	};
+	function addfood(element, text, id, typ){
+		var wrapper = document.createElement('div');
+			wrapper.setAttribute('class', 'foodelement');
+			var img = document.createElement('img');
+				img.setAttribute('src', 'bilder/mat/' + id + '.jpg');
+				img.setAttribute('onclick', 'show("' + id + '", "' + typ + '");')
+			wrapper.appendChild(img);
+			var title = document.createElement('p');
+				var titletext = document.createTextNode(text);
+				title.appendChild(titletext);
+			wrapper.appendChild(title);
+		element.appendChild(wrapper);
+	};
+	function mangdchose(element){
+		var number = element.getAttribute('data-number');
+		var todo = element.getAttribute('class');
+		var parent = element.parentElement.parentElement.getElementsByTagName('td');
+		for (var i = parent.length - 1; i >= 0; i--) {parent[i].removeAttribute('class');};
+		if(todo == 'chosen'){var number = parseInt(number) - 1;};
+		for (var i = parent.length - 1; i >= 0; i--) {
+			if(parent[i].getAttribute('data-number') <= number){
+				parent[i].setAttribute('class', 'chosen');
+			};
+		};
+	};
+	function marksmiley(element){
+		var allsmileys = element.parentElement.getElementsByTagName('td');
+		for (var i = allsmileys.length - 1; i >= 0; i--) {
+			allsmileys[i].removeAttribute('class');
+		};
+		element.setAttribute('class', 'chosen');
+	};
+	function checkallergi(element){
+		var allergispan = document.getElementById('omallergi');
+		var ejallergi = document.getElementById('ejallergi');
+		if(element.checked){
+			allergispan.removeAttribute('style');
+			//ejallergi.setAttribute('style', 'display: none;');
+		}else{
+			allergispan.setAttribute('style', 'display: none;');
+			//ejallergi.removeAttribute('style');
+		};
+	};
+	function registrera(){
+		var initial = document.getElementById('setinitial').value;
+		var checkallergi = document.getElementById('setcheckboxallergi');
+		var allergiinfo = document.getElementById('setallergi').value;
+		var kost = document.getElementById('setkost').value;
+		var kommentar = document.getElementById('setkommentar').value;
+
+		var utnamn = document.getElementById('utnamn');
+		while (utnamn.hasChildNodes()) {utnamn.removeChild(utnamn.firstChild);};
+		var utkost = document.getElementById('utkost');
+		while (utkost.hasChildNodes()) {utkost.removeChild(utkost.firstChild);};
+		var utkommentar = document.getElementById('utkommentar');
+		while (utkommentar.hasChildNodes()) {utkommentar.removeChild(utkommentar.firstChild);};
+
+		var utnamntext = document.createTextNode(initial);
+		utnamn.appendChild(utnamntext);
+		if(checkallergi.checked){
+			var utkosttext = document.createTextNode('Allergi');
+			utkost.appendChild(utkosttext);
+			var utkommentartext = document.createTextNode(kost + ', ' + allergiinfo + ', ' + kommentar);
+			utkommentar.appendChild(utkommentartext);
+		}else{
+			var utkosttext = document.createTextNode(kost);
+			utkost.appendChild(utkosttext);
+			var utkommentartext = document.createTextNode(kommentar);
+			utkommentar.appendChild(utkommentartext);
+		};
+		document.getElementById('mainapp').removeAttribute('style');
+		document.getElementById('demo').setAttribute('style', 'display: none;');
+	};
+	function styleinitial(element){
+		if(element.value.length < 3){
+			element.value = element.value.toUpperCase();
+			var onlycharacters = element.value.replace(':', '');
+			if(onlycharacters.length == 2){
+				var separate = onlycharacters.split('');
+				element.value = separate[0] + ':' + separate[1];
+			};
+		};
+	};
+	function skickareg(){
+		var smileynummer = document.getElementById('smiley').getElementsByClassName('chosen')[0].getAttribute('data-number');
+		var date = document.getElementById('date').innerText;
+		var portion = document.getElementById('ringwrapper').getElementsByClassName('chosen').length;
+		var kommentar = document.getElementById('fraga').getElementsByTagName('textarea')[0].value;
+		var utnamn = document.getElementById('utnamn').innerText;
+		console.log(utnamn + ' tyckte: ' + smileynummer + ' och gav kommentaren: "' + kommentar + '", Åt: ' + (parseInt(portion) / 4) + ' av tallriken.');
+		socket.emit('reg', {datum: date, id: utnamn, smiley: smileynummer, komment: kommentar, portionprocent: (parseInt(portion) / 4)});
+		document.getElementById('fragawrapper').setAttribute('style', 'display: none;');
+	};
+	function bestall(typ){
+		console.log('Beställning gjord!');
+		var wrapper = document.getElementById('finalinfo');
+			var li = wrapper.getElementsByTagName('li');
+			var array = [];
+			for (var i = li.length - 1; i >= 0; i--) {
+				array.push(li[i].innerText.replace('\n', '').replace('\n', '').replace('\n', '').replace('\n', ''));
+			};
+			var storlekinput = document.getElementById('storlekinput').value.charAt(0);
+			var date = document.getElementById('date').innerText;
+			var utnamn = document.getElementById('utnamn').innerText;
+			var utkost = document.getElementById('utkost').innerText;
+			var utkommentar = document.getElementById('utkommentar').innerText;
+			//var arrayihop = array.join(',');
+			console.log(typ + utnamn + ' - ' + utkost + ' - ' + utkommentar + ' - ' + array);
+			socket.emit('bestall', {storlek: storlekinput, datum: date, typ: typ, id: utnamn, kost: utkost, komment: utkommentar, val: array});
+			visafraga();
+		//document.getElementById('fragawrapper').removeAttribute('style');
+		//document.getElementById('wrapper').removeAttribute('style');
+		//document.getElementById('foodinfowrapper').setAttribute('style', 'display: none;');
+		tillbaka();
+	};
+	//socket.emit('textarea', {id: element.getAttribute('name'), info: element.innerHTML, type: 'html'});
+</script>
+</head>
+<body onload="loadfood();">
+<div id="demo">
+	<p>Dina initialer</p>
+	<input type="text" id="setinitial" onkeyup="styleinitial(this)" placeholder="X:X">
+	<p>Har du någon kostallergi?</p>
+	<p><input type="checkbox" id="setcheckboxallergi" onclick="checkallergi(this);"> Ja</p>
+	<span id="omallergi" style="display: none;">
+		<p>Beskriv din allergi</p>
+		<textarea id="setallergi"></textarea>
+	</span>
+	<span id="ejallergi">
+		<p>Kost</p>
+		<select id="setkost">
+			<option value="A-kost">Vanlig kost (A-kost)</option>
+			<option value="E-kost">Energirik kost (E-Kost)</option>
+			<!--<option>Special</option>-->
+			<!--<option value="NNR-kost">Nordisk standardkost (NNR-kost)</option>-->
+			<option value="Vegetarisk">Vegetarisk</option>
+			<option value="Vegan">Vegan</option>
+		</select>
+	</span>
+	<p>Övriga kommentarer:</p>
+	<textarea id="setkommentar"></textarea><br/>
+	<input type="button" value="Registrera" onclick="registrera()" name="">
+</div>
+<div id="mainapp" style="display: none;">
+	<h1>Välkommen <span id="utnamn">X:X</span>. Vad önskas till måltid?</h1>
+	<p>Kost typ: <span id="utkost">A-kost</span>. Notering: <span id="utkommentar">Utan nötkött, laktosintollerant</span>.<!-- Användar ID: 523023.--></p>
+	<div id="wrapper">
+		<table id="time">
+			<tr>
+				<td onclick="nextdate(this)" data-numberdate="-1">&#8678;</td>
+				<td id="date"></td>
+				<td onclick="nextdate(this)" data-numberdate="1">&#8680;</td>
+			</tr>
+		</table>
+		<div id="middag">
+			<h2>Middag</h2>
+		</div>
+		<div id="lunch">
+			<h2>Lunch</h2>
+		</div>
+	</div>
+	<div id="foodinfowrapper">
+		<div id="foodinfo"></div>
+		<div id="extrafoodinfo" style="display: none;"></div>
+	</div>
+	<div id="changemenu"></div>
+	<div id="fragawrapper" style="display: none;">
+		<div id="fraga">
+			<p>Vad tyckte du om maten idag?</p>
+			<table id="smiley">
+				<tr><td onclick="marksmiley(this)" data-number="1"><img src="bilder/smiley/1.png"></td><td onclick="marksmiley(this)" data-number="2"><img src="bilder/smiley/2.png"></td><td class="chosen" onclick="marksmiley(this)" data-number="3"><img src="bilder/smiley/3.png"></td><td onclick="marksmiley(this)" data-number="4"><img src="bilder/smiley/4.png"></td><td onclick="marksmiley(this)" data-number="5"><img src="bilder/smiley/5.png"></td></tr>
+			</table>
+			<p>Kommentar</p>
+			<textarea></textarea>
+			<p>Hur mycket av maten åt du?</p>
+			<div id="ringwrapper">
+				<table class="ring">
+					<tr><td class="chosen" onclick="mangdchose(this)" data-number="1"></td><td class="chosen" onclick="mangdchose(this)" data-number="4"></td></tr>
+					<tr><td class="chosen" onclick="mangdchose(this)" data-number="2"></td><td class="chosen" onclick="mangdchose(this)" data-number="3"></td></tr>
+				</table>
+			</div>
+			<input type="button" value="Skicka" name="" onclick="skickareg()">
+		</div>
+	</div>
+</div>
+<script>
+			//Tar server id enbart för att koppla till socket
+			var geturl = window.location.href.replace('http://', '').split('/')[0];
+			//Lyssnar om server säger något
+			var socket = io.connect(geturl);
+
+			// A dialog box is displayed when the server sends us a "message"
+			socket.on('message', function(message) {
+				console.log(message);
+			});
+			//Lägger till infomration till önskad textarea
+			socket.on('textarea', function(message) {
+				/*console.log(message.id);
+				console.log(message.info);
+				console.log(message.type);*/
+				
+			});
+			
+		</script>
+</body>
+</html>
