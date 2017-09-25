@@ -1,0 +1,2 @@
+# Matbestallning-socket.io
+Applikation vilket ger patienten möjlighet att beställa maten själv. Dels uppnår vi med denna idén möjligghet att ge patienten möjlighet till egenbestämmande. Även ger vi vårdpersonalen tid att ta beställningar för de patienter som inte klarar av att göra detta själva. Med detta kan vi även få direkt feedback till köket om hur uppskattad maten var. Patienten kan även själv registrera hur mycket den ätit och med detta föra din egen kalorilista.  OBSERVERA att detta inte är en färdig lösning!
